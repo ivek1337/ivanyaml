@@ -77,6 +77,8 @@ workflows:
           failure: false
       <<: *email_develop
       <<: *slack_publish
+      scripts:
+        - echo 'Post-publish script'
   web-workflow:
     name: Web app workflow
     max_build_duration: 10
