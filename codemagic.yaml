@@ -1,7 +1,25 @@
 definitions: 
   env_versions: &env_versions
-    xcode: latest 
-    cocoapods: default
+    flutter: stable
+  scripts:
+    - &get_flutter_packages
+      name: Get Flutter packages
+      script: |
+        flutter packages pub get
+    - &analyze_flutter
+      name: Flutter analyze
+      script: |
+        flutter analyze
+    - &flutter_unit_tests
+      name: Flutter unit tests
+      script: |
+        flutter test
+    - &flutter_build_webapp
+      name: Flutter build webapp
+      script: |
+        flutter build web --release
+        cd build/web
+        7z a -r ../web.zip ./*
   email_develop: &email_develop
     email:
       recipients:
@@ -16,8 +34,7 @@ workflows:
     name: Android Workflow
     max_build_duration: 60
     environment:
-      flutter: stable
-      # << : *env_versions
+      flutter: stable  #or we can write << : *env_versions
     scripts:
       - name: Set up local.properties
         script: |
@@ -52,3 +69,18 @@ workflows:
           failure: false
       <<: *email_develop
       <<: *slack_publish
+  web-workflow:
+    name: Web app workflow
+    max_build_duration: 10
+    environment:
+      << : *env_versions
+    scripts:
+      - *get_flutter_packages
+      - *analyze_flutter
+      - *flutter_unit_tests
+      - *flutter_build_webapp
+    artifacts:
+      - build/web.zip
+      - flutter_drive.log
+    publishing:
+      <<: *email_develop
