@@ -51,4 +51,4 @@ workflows:
           success: true
           failure: false
       <<: *email_develop
-      # <<: *slack_publish
+      <<: *slack_publish
