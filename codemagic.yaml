@@ -25,7 +25,7 @@ definitions:
       recipients:
         - user_3@example.com
         - user_4@example.com
-        - user_5@example.com
+        - ivan@codemagic.io
   slack_publish: &slack_publish
     slack:
       channel: "#builds"
