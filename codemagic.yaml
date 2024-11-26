@@ -34,6 +34,9 @@ workflows:
     name: Android Workflow
     max_build_duration: 60
     environment:
+      groups:
+        - keystore_credentials
+        - google_play
       flutter: stable  #or we can write << : *env_versions
       ios_signing:
         distribution_type: development # or: ad_hoc | app_store | enterprise
@@ -89,6 +92,9 @@ workflows:
     max_build_duration: 10
     environment:
       << : *env_versions
+      groups:
+        - keystore_credentials
+        - google_play
     scripts:
       - *get_flutter_packages
       - *analyze_flutter
