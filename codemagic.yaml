@@ -43,7 +43,7 @@ workflows:
         submit_as_draft: true
       flutter: stable  #or we can write << : *env_versions
       android_signing:
-        - keystore_credentials
+        - android_keystore
     triggering:
       events:
         - push
