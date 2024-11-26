@@ -37,6 +37,10 @@ workflows:
       groups:
         - keystore_credentials
         - google_play
+      vars:
+        PACKAGE_NAME: "io.codemagic.ivan"
+        GOOGLE_PLAY_TRACK: internal
+        submit_as_draft: true
       flutter: stable  #or we can write << : *env_versions
       ios_signing:
         distribution_type: development # or: ad_hoc | app_store | enterprise
