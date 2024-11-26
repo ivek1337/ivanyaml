@@ -42,9 +42,8 @@ workflows:
         GOOGLE_PLAY_TRACK: internal
         submit_as_draft: true
       flutter: stable  #or we can write << : *env_versions
-      ios_signing:
-        distribution_type: development # or: ad_hoc | app_store | enterprise
-        bundle_identifier: io.codemagic.ivan
+      android_signing:
+        - keystore_credentials
     triggering:
       events:
         - push
