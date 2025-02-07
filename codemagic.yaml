@@ -110,7 +110,7 @@ workflows:
       <<: *email_develop
   ios-yaml-workflow:
     name: iOS Workflow
-    instance_type: mac_mini_m4_pro
+    #instance_type: mac_mini_m4_pro
     max_build_duration: 120
     integrations:
       app_store_connect: ivan-codemagic-demo
@@ -121,7 +121,7 @@ workflows:
         - pattern: "*"
           include: false
     environment:
-      xcode: 16.2
+      xcode: 16.1
       groups:
         - keystore_credentials
         - google_play
