@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<resources>
+    <string name="CodePushServerUrl">https://codepush.codemagic.io/</string>
+    <string name="CodePushDeploymentKey">C7XXAwkjUMuBQ5EQqQ8rHRSwvzGG6694e4b444f335635ba8e823</string>
+</resources>

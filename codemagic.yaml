@@ -38,6 +38,7 @@ workflows:
       groups:
         - keystore_credentials
         - google_play
+        - codepush
       vars:
         PACKAGE_NAME: "io.codemagic.ivan"
         GOOGLE_PLAY_TRACK: internal
@@ -75,6 +76,26 @@ workflows:
           flutter build appbundle --release \
             --build-name=1.0.$BUILD_NUMBER \
             --build-number=$BUILD_NUMBER
+
+      - name: Install CodePush cli tools
+        script: |
+          git clone https://github.com/microsoft/code-push-server /tmp/code-push-server
+          cd /tmp/code-push-server/cli
+          npm install && npm run build && npm install -g
+      - name: CodePush authentication
+        script: |
+          code-push-standalone login "https://codepush.codemagic.io" --key $CODEPUSH_ACCESS_KEY
+      #- name: CodePush add app # this script can be skipped if you have existing apps
+      #  script: |
+      #    code-push-standalone app add YOUR_PREFERRED_APP_NAME
+      #    code-push-standalone app ls
+      - name: Install npm dependencies
+        script: |
+          npm install
+      - name: Codepush deployment
+        script: |
+          code-push-standalone release-react IVANYAML ios -d Staging # -d refers to the deployment name e.g. Production, Staging
+          code-push-standalone release-react IVANYAML android -d Staging # -d refers to the deployment name e.g. Production, Staging
     artifacts:
       - build/**/outputs/**/*.aab
       - build/**/outputs/**/mapping.txt
@@ -128,6 +149,7 @@ workflows:
       groups:
         - keystore_credentials
         - google_play
+        - codepush
       ios_signing:
         distribution_type: app_store
         bundle_identifier: io.codemagic.ivanyaml
@@ -140,6 +162,7 @@ workflows:
           echo "Machine: $(sysctl -n machdep.cpu.brand_string)"
           echo "CPU cores: $(sysctl -n hw.physicalcpu) physical / $(sysctl -n hw.logicalcpu) logical"
           echo "RAM: $(($(sysctl -n hw.memsize) / 1024 / 1024 / 1024)) GB"
+
       - name: Set up code signing settings on Xcode project
         script: | 
           xcode-project use-profiles
@@ -163,6 +186,26 @@ workflows:
             --build-name=1.0.$BUILD_NUMBER \
             --build-number=$BUILD_NUMBER \
             --export-options-plist=/Users/builder/export_options.plist
+
+      - name: Install CodePush cli tools
+        script: |
+          git clone https://github.com/microsoft/code-push-server /tmp/code-push-server
+          cd /tmp/code-push-server/cli
+          npm install && npm run build && npm install -g
+      - name: CodePush authentication
+        script: |
+          code-push-standalone login "https://codepush.codemagic.io" --key $CODEPUSH_ACCESS_KEY
+      #- name: CodePush add app # this script can be skipped if you have existing apps
+      #  script: |
+      #    code-push-standalone app add YOUR_PREFERRED_APP_NAME
+      #    code-push-standalone app ls
+      - name: Install npm dependencies
+        script: |
+          npm install
+      - name: Codepush deployment
+        script: |
+          code-push-standalone release-react IVANYAML ios -d Staging # -d refers to the deployment name e.g. Production, Staging
+          code-push-standalone release-react IVANYAML android -d Staging # -d refers to the deployment name e.g. Production, Staging
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
