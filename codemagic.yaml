@@ -199,9 +199,9 @@ workflows:
       #  script: |
       #    code-push-standalone app add YOUR_PREFERRED_APP_NAME
       #    code-push-standalone app ls
-      - name: Install npm dependencies
-        script: |
-          npm install
+      #- name: Install npm dependencies
+      #  script: |
+      #    npm install
       - name: Codepush deployment
         script: |
           code-push-standalone release-react IVANYAML ios -d Staging # -d refers to the deployment name e.g. Production, Staging
