@@ -47,9 +47,5 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>CodePushServerURL</key>
-	<string>https://codepush.codemagic.io/</string>
-	<key>CodePushDeploymentKey</key>
-    	<string>C7XXAwkjUMuBQ5EQqQ8rHRSwvzGG6694e4b444f335635ba8e823</string>
 </dict>
 </plist>
