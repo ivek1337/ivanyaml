@@ -145,7 +145,7 @@ workflows:
         - pattern: "*"
           include: false
     environment:
-      xcode: 16.2
+      xcode: 16.1
       groups:
         - keystore_credentials
         - google_play
