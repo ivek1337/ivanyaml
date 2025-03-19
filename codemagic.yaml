@@ -30,6 +30,116 @@ definitions:
     slack:
       channel: "#builds"
 workflows:
+
+  ios-yaml-workflow:
+    name: iOS Workflow
+    #instance_type: mac_mini_m2
+    max_build_duration: 120
+    integrations:
+      app_store_connect: ivan-codemagic-demo
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: '*'
+          include: true
+          source: true
+      cancel_previous_builds: false
+    environment:
+      xcode: 16.2
+      groups:
+        - keystore_credentials
+        - google_play
+        - codepush
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: io.codemagic.ivanyaml
+      vars:
+        APP_ID: 6738692730 # <-- Use the TestFlight Apple id number (An automatically generated ID assigned to your app) found under General > App Information > Apple ID.
+      flutter: stable
+    scripts:
+      - name: Melos&bootstrap
+        script: |
+          dart pub global activate flutterfire_cli
+          dart pub global activate melos
+          melos bootstrap
+      - name: Machine Specs
+        script: |
+          echo "Machine: $(sysctl -n machdep.cpu.brand_string)"
+          echo "CPU cores: $(sysctl -n hw.physicalcpu) physical / $(sysctl -n hw.logicalcpu) logical"
+          echo "RAM: $(($(sysctl -n hw.memsize) / 1024 / 1024 / 1024)) GB"
+
+      - name: Set up code signing settings on Xcode project
+        script: | 
+          xcode-project use-profiles
+      - name: Get Flutter packages
+        script: | 
+          flutter pub get
+      - name: Install pods
+        script: | 
+          find . -name "Podfile" -execdir pod install \;
+      - name: Flutter analyze
+        script: | 
+          flutter analyze
+      - name: Flutter unit tests
+        script: | 
+          flutter test
+        ignore_failure: true
+      - name: Flutter build ipa
+        script: | 
+          BUILD_NUMBER=$(($(app-store-connect get-latest-app-store-build-number "$APP_ID") + 1))
+          flutter build ipa --release \
+            --build-name=1.0.$BUILD_NUMBER \
+            --build-number=$BUILD_NUMBER \
+            --export-options-plist=/Users/builder/export_options.plist
+
+      #- name: Install CodePush cli tools
+      #  script: |
+      #    git clone https://github.com/microsoft/code-push-server /tmp/code-push-server
+      #    cd /tmp/code-push-server/cli
+      #    npm install && npm run build && npm install -g
+      #- name: CodePush authentication
+      #  script: |
+      #    code-push-standalone login "https://codepush.codemagic.io" --key $CODEPUSH_ACCESS_KEY
+      #- name: CodePush add app # this script can be skipped if you have existing apps
+      #  script: |
+      #    code-push-standalone app add YOUR_PREFERRED_APP_NAME
+      #    code-push-standalone app ls
+      #- name: Install npm dependencies
+      #  script: |
+      #    npm install
+      #- name: Codepush deployment
+      #  script: |
+      #    code-push-standalone release-react IVANYAML ios -d Staging # -d refers to the deployment name e.g. Production, Staging
+      #    code-push-standalone release-react IVANYAML android -d Staging # -d refers to the deployment name e.g. Production, Staging
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+    publishing:
+      email:
+        recipients:
+          - ivan@codemagic.io
+          - user_2@example.com
+        notify:
+          success: true
+          failure: true
+      app_store_connect:
+        auth: integration
+
+        # Configuration related to TestFlight (optional)
+        # Note: This action is performed during post-processing.
+        submit_to_testflight: false
+        beta_groups: # Specify the names of beta tester groups that will get access to the build once it has passed beta review.
+          - group name 1
+          - group name 2
+
+        # Configuration related to App Store (optional)
+        # Note: This action is performed during post-processing.
+        submit_to_app_store: false
+
+
+
   android-workflow:
     name: Android Workflow
     instance_type: mac_mini_m2
@@ -132,104 +242,3 @@ workflows:
     publishing:
       <<: *email_develop
   
-  ios-yaml-workflow:
-    name: iOS Workflow
-    #instance_type: mac_mini_m2
-    max_build_duration: 120
-    integrations:
-      app_store_connect: ivan-codemagic-demo
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: '*'
-          include: true
-          source: true
-      cancel_previous_builds: false
-    environment:
-      xcode: 16.2
-      groups:
-        - keystore_credentials
-        - google_play
-        - codepush
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: io.codemagic.ivanyaml
-      vars:
-        APP_ID: 6738692730 # <-- Use the TestFlight Apple id number (An automatically generated ID assigned to your app) found under General > App Information > Apple ID.
-      flutter: stable
-    scripts:
-      - name: Machine Specs
-        script: |
-          echo "Machine: $(sysctl -n machdep.cpu.brand_string)"
-          echo "CPU cores: $(sysctl -n hw.physicalcpu) physical / $(sysctl -n hw.logicalcpu) logical"
-          echo "RAM: $(($(sysctl -n hw.memsize) / 1024 / 1024 / 1024)) GB"
-
-      - name: Set up code signing settings on Xcode project
-        script: | 
-          xcode-project use-profiles
-      - name: Get Flutter packages
-        script: | 
-          flutter pub get
-      - name: Install pods
-        script: | 
-          find . -name "Podfile" -execdir pod install \;
-      - name: Flutter analyze
-        script: | 
-          flutter analyze
-      - name: Flutter unit tests
-        script: | 
-          flutter test
-        ignore_failure: true
-      - name: Flutter build ipa
-        script: | 
-          BUILD_NUMBER=$(($(app-store-connect get-latest-app-store-build-number "$APP_ID") + 1))
-          flutter build ipa --release \
-            --build-name=1.0.$BUILD_NUMBER \
-            --build-number=$BUILD_NUMBER \
-            --export-options-plist=/Users/builder/export_options.plist
-
-      #- name: Install CodePush cli tools
-      #  script: |
-      #    git clone https://github.com/microsoft/code-push-server /tmp/code-push-server
-      #    cd /tmp/code-push-server/cli
-      #    npm install && npm run build && npm install -g
-      #- name: CodePush authentication
-      #  script: |
-      #    code-push-standalone login "https://codepush.codemagic.io" --key $CODEPUSH_ACCESS_KEY
-      #- name: CodePush add app # this script can be skipped if you have existing apps
-      #  script: |
-      #    code-push-standalone app add YOUR_PREFERRED_APP_NAME
-      #    code-push-standalone app ls
-      #- name: Install npm dependencies
-      #  script: |
-      #    npm install
-      #- name: Codepush deployment
-      #  script: |
-      #    code-push-standalone release-react IVANYAML ios -d Staging # -d refers to the deployment name e.g. Production, Staging
-      #    code-push-standalone release-react IVANYAML android -d Staging # -d refers to the deployment name e.g. Production, Staging
-    artifacts:
-      - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-      - flutter_drive.log
-    publishing:
-      email:
-        recipients:
-          - ivan@codemagic.io
-          - user_2@example.com
-        notify:
-          success: true
-          failure: true
-      app_store_connect:
-        auth: integration
-
-        # Configuration related to TestFlight (optional)
-        # Note: This action is performed during post-processing.
-        submit_to_testflight: false
-        beta_groups: # Specify the names of beta tester groups that will get access to the build once it has passed beta review.
-          - group name 1
-          - group name 2
-
-        # Configuration related to App Store (optional)
-        # Note: This action is performed during post-processing.
-        submit_to_app_store: false
