@@ -60,6 +60,22 @@ workflows:
     scripts:
       - name: Melos&bootstrap
         script: |
+          echo "FLUTTER_ROOT is set to: $FLUTTER_ROOT"
+          echo "CM_BUILD_DIR is set to: $CM_BUILD_DIR"
+          
+          if [ -d "$CM_BUILD_DIR/.fvm/" ]; then
+            echo "$CM_BUILD_DIR/.fvm/ exists."
+          else
+            echo "$CM_BUILD_DIR/.fvm/ does not exist, creating it now."
+            mkdir -p $CM_BUILD_DIR/.fvm/
+          fi
+          
+          ln -s $FLUTTER_ROOT $CM_BUILD_DIR/.fvm/flutter_sdk
+          echo "Symbolic link created."
+          echo "Verifying symbolic link..."
+          ls -l $CM_BUILD_DIR/.fvm/flutter_sdk
+          $CM_BUILD_DIR/.fvm/flutter_sdk/bin/flutter --version
+          
           dart pub global activate flutterfire_cli
           dart pub global activate melos
           melos bootstrap
