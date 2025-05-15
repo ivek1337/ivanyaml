@@ -301,6 +301,7 @@ workflows:
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"          
       - name: Build Android
         script: |
+          gradle init
           gradle wrapper
           chmod +x ./gradlew
           ./gradlew assembleDebug          
