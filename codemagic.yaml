@@ -266,6 +266,15 @@ workflows:
       flutter: 3.27.3
       xcode: 16.2
     scripts:
+
+      - name: Machine Specs
+        script: |
+          echo "Machine: $(sysctl -n machdep.cpu.brand_string)"
+          echo "CPU cores: $(sysctl -n hw.physicalcpu) physical / $(sysctl -n hw.logicalcpu) logical"
+          echo "RAM: $(($(sysctl -n hw.memsize) / 1024 / 1024 / 1024)) GB"
+          echo "GPU Info:"
+          system_profiler SPDisplaysDataType
+          
       - name: Run Flutter pub get
 
         script: flutter pub get
