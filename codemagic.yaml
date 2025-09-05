@@ -264,7 +264,7 @@ workflows:
     name: Flutter iOS Simulator
     environment:
       flutter: 3.27.3
-      xcode: 16.2
+      xcode: 16.4
     scripts:
 
       - name: Machine Specs
