@@ -160,7 +160,7 @@ workflows:
 
   android-workflow:
     name: Android Workflow
-    instance_type: mac_mini_m4
+    instance_type: mac_studio_m4_max
     max_build_duration: 60
     environment:
       groups:
