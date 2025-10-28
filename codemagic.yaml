@@ -395,7 +395,7 @@ workflows:
     artifacts:
 
       - build/ios/iphonesimulator/Runner.app
-      #- name: install dependencies
+      #- name: install dependencies 
       #  script: flutter pub get
       #- name: Build unsigned .app
       #  script: |  
