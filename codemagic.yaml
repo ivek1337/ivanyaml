@@ -399,7 +399,7 @@ workflows:
       #  script: flutter pub get
       #- name: Build unsigned .app
       #  script: |  
-      #    xcodebuild -workspace "ios/Runner.xcworkspace" \
+      #    xcodebuild -workspace "ios/Runner.xcworkspace" \ 
       #      -scheme "Runner" \
       #      -sdk iphonesimulator \
       #      -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max,OS=18.2' \
