@@ -51,7 +51,7 @@ workflows:
         distribution_type: app_store
         bundle_identifier: io.codemagic.ivanyaml
       vars:
-        APP_ID: 6738692730 # <-- Use the TestFlight Apple id number (An automatically generated ID assigned to your app) found under General > App Information > Apple ID.
+        APP_ID: 6738692730 # <-- Use the TestFlight Apple id number (An automatically generated ID assigned to your app) found under General > App Information > Apple ID. 
       flutter: stable
     scripts:
       - name: Melos&bootstrap
