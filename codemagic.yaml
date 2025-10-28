@@ -29,7 +29,7 @@ definitions:
   slack_publish: &slack_publish
     slack:
       channel: "#builds"
-workflows:
+workflows: 
   label-triggered-checks:
       name: Label Triggered Checks
       triggering:
