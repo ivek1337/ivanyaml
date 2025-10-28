@@ -54,6 +54,11 @@ workflows:
         APP_ID: 6738692730 # <-- Use the TestFlight Apple id number (An automatically generated ID assigned to your app) found under General > App Information > Apple ID.
       flutter: stable
     scripts:
+      - name: Print all PR labels
+        script: |
+          echo "All PR labels:"
+          echo "$GITHUB_EVENT_PAYLOAD" | jq -r '.pull_request.labels[].name'
+
       - name: Melos&bootstrap
         script: |
           echo "FLUTTER_ROOT is set to: $FLUTTER_ROOT"
