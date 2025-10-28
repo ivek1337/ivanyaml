@@ -30,6 +30,15 @@ definitions:
     slack:
       channel: "#builds"
 workflows:
+  label-triggered-checks:
+      name: Label Triggered Checks
+      triggering:
+        events:
+          - pull_request_labeled
+      when:
+        condition: event.pull_request.labels[0].name == "Good to Merge"
+      # Define your steps here for Android Linter, RN Linter, Android Tests, Jest Tests
+
 
   ios-yaml-workflow:
     name: iOS Workflow
