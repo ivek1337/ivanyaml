@@ -28,7 +28,7 @@ definitions:
         - ivan@codemagic.io
   slack_publish: &slack_publish
     slack:
-      channel: "#builds"
+      channel: "#builds" 
 workflows: 
   label-triggered-checks:
     name: Label Triggered Checks
