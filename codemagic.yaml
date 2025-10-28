@@ -31,13 +31,12 @@ definitions:
       channel: "#builds" 
 workflows: 
   check_labels_and_build:
-    environment:
-      groups:
-        - GitHub Token
     triggering:
       events:
         - pull_request
     environment:
+      groups:
+        - GitHub Token
       vars:
         GITHUB_TOKEN: $ghtoken # Set this secret in your Codemagic project
         REPO_OWNER: ivek1337
