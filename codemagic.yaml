@@ -38,6 +38,10 @@ workflows:
       vars:
         LABELS: event.pull_request.labels
     scripts:
+      - name: Print all PR labels
+        script: |
+          echo "All PR labels:"
+          echo "$LABELS" | jq -r '.pull_request.labels[].name'
       - name: Check if PR has 'Good to Merge' label
         script: |
           echo "Checking for label 'Good to Merge'..."
