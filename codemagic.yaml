@@ -31,29 +31,45 @@ definitions:
       channel: "#builds" 
 workflows: 
   check_labels_and_build:
+    groups:
+        - GitHub Token
     triggering:
       events:
         - pull_request
     environment:
       vars:
-        LABELS: event.pull_request.labels
+        GITHUB_TOKEN: $ghtoken # Set this secret in your Codemagic project
+        REPO_OWNER: ivek1337
+        REPO_NAME: ivanyaml
+        PR_NUMBER: $CM_PULL_REQUEST_NUMBER
+
     scripts:
-      - name: Check if PR has 'Good to Merge' label
+      - name: Check PR labels via GitHub API
         script: |
-          echo "Checking for label 'Good to Merge'..."
-          labels_json="$LABELS"
-          # parse labels JSON and check if 'Good to Merge' exists
-          echo "$labels_json" | jq -e '.[] | select(.name == "good to merg")' > /dev/null
+          echo "Fetching PR #$PR_NUMBER labels from $REPO_OWNER/$REPO_NAME..."
+
+          labels_json=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/issues/$PR_NUMBER/labels")
+
+          echo "Labels:"
+          echo "$labels_json" | jq -r '.[].name'
+
+          # Check if any label is "good to merg"
+          echo "$labels_json" | jq -e '.[] | select(.name | ascii_downcase == "good to merg")' > /dev/null
+
           if [ $? -eq 0 ]; then
-            echo "Label 'Good to Merge' found, continuing build."
+            echo "Label 'good to merg' found. Continuing build."
           else
-            echo "Label 'Good to Merge' not found, canceling build."
+            echo "Label 'good to merg' not found. Stopping build."
             exit 1
           fi
+
       - name: Continue with build
         script: |
           echo "Running main build steps..."
-          # put your actual build scripts here
+          # Your build commands here
+
 
   label-triggered-checks:
     name: Label Triggered Checks
