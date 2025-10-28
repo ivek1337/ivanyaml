@@ -30,6 +30,28 @@ definitions:
     slack:
       channel: "#builds" 
 workflows: 
+  check_labels_and_build:
+    triggering:
+      events:
+        - pull_request
+    scripts:
+      - name: Check if PR has 'Good to Merge' label
+        script: |
+          echo "Checking for label 'Good to Merge'..."
+          labels_json="$CM_PULL_REQUEST_LABELS"
+          # parse labels JSON and check if 'Good to Merge' exists
+          echo "$labels_json" | jq -e '.[] | select(.name == "good to merg")' > /dev/null
+          if [ $? -eq 0 ]; then
+            echo "Label 'Good to Merge' found, continuing build."
+          else
+            echo "Label 'Good to Merge' not found, canceling build."
+            exit 1
+          fi
+      - name: Continue with build
+        script: |
+          echo "Running main build steps..."
+          # put your actual build scripts here
+
   label-triggered-checks:
     name: Label Triggered Checks
     triggering:
@@ -37,7 +59,7 @@ workflows:
         - pull_request_labeled
       cancel_previous_builds: true
     when:
-      condition: event.pull_request.labels[0].name == "Good to Merge"
+      condition: event.pull_request.labels[event.pull_request.labels.length - 1].name == "good to merg"
     integrations:
       app_store_connect: ivan-codemagic-demo
   
