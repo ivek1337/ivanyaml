@@ -37,7 +37,7 @@ workflows:
         - pull_request_labeled
       cancel_previous_builds: true
     when:
-      condition: event.pull_request.labels[0].name == "Good to Merge"
+      condition: event.pull_request.labels[labels.length - 1].name == "Good to Merge"
     integrations:
       app_store_connect: ivan-codemagic-demo
   
