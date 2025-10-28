@@ -34,11 +34,14 @@ workflows:
     triggering:
       events:
         - pull_request
+    environment:
+      vars:
+        LABELS: event.pull_request.labels
     scripts:
       - name: Check if PR has 'Good to Merge' label
         script: |
           echo "Checking for label 'Good to Merge'..."
-          labels_json="$CM_PULL_REQUEST_LABELS"
+          labels_json="$LABELS"
           # parse labels JSON and check if 'Good to Merge' exists
           echo "$labels_json" | jq -e '.[] | select(.name == "good to merg")' > /dev/null
           if [ $? -eq 0 ]; then
@@ -59,7 +62,7 @@ workflows:
         - pull_request_labeled
       cancel_previous_builds: true
     when:
-      condition: event.pull_request.labels[event.pull_request.labels.length - 1].name == "good to merg"
+      condition: event.pull_request.labels[-1].name == "good to merg"
     integrations:
       app_store_connect: ivan-codemagic-demo
   
