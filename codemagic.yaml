@@ -47,16 +47,25 @@ workflows:
     scripts:
       - name: Check PR labels via GitHub API
         script: |
-          echo "Fetching PR #$PR_NUMBER labels from $REPO_OWNER/$REPO_NAME..."
+          echo "Fetching labels for PR #$PR_NUMBER in $REPO_OWNER/$REPO_NAME..."
 
           labels_json=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/issues/$PR_NUMBER/labels")
 
+          echo "Raw API response:"
+          echo "$labels_json"
+
+          # Test if response is a JSON array
+          if ! echo "$labels_json" | jq -e 'type == "array"' > /dev/null; then
+            echo "API response is not a JSON array. Aborting."
+            exit 1
+          fi
+
           echo "Labels:"
           echo "$labels_json" | jq -r '.[].name'
 
-          # Check if any label is "good to merg"
+          # Check if label "good to merg" exists
           echo "$labels_json" | jq -e '.[] | select(.name | ascii_downcase == "good to merg")' > /dev/null
 
           if [ $? -eq 0 ]; then
