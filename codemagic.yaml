@@ -35,6 +35,11 @@ workflows:
       events:
         - pull_request
     scripts:
+      - name: Print all PR labels
+        script: |
+          echo "Labels on the PR:"
+          echo "$CM_PULL_REQUEST_LABELS" | jq -r '.[].name'
+
       - name: Check if PR has 'Good to Merge' label
         script: |
           echo "Checking for label 'Good to Merge'..."
