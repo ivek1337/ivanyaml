@@ -40,6 +40,7 @@ workflows:
     scripts:
       - name: Check if PR has 'Good to Merge' label
         script: |
+          echo "PR NUMBER IS: $CM_PULL_REQUEST_NUMBER"
           echo "Checking for label 'Good to Merge'..."
           labels_json="$LABELS"
           # parse labels JSON and check if 'Good to Merge' exists
