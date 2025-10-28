@@ -49,7 +49,7 @@ workflows:
           echo "Fetching labels for PR #$PR_NUMBER in $REPO_OWNER/$REPO_NAME..."
           echo "Token $GITHUB_TOKEN"
           echo "direct token is $ghtoken"
-          labels_json=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          labels_json=$(curl -s -H "Authorization: token $ghtoken" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/issues/$PR_NUMBER/labels")
 
