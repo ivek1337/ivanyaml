@@ -36,7 +36,7 @@ workflows:
         - pull_request
     environment:
       groups:
-        - GitHub Token # Set this secret in your Codemagic project
+        - GitHub Token # Set this secret in your Codemagic project 
       vars:
         REPO_OWNER: ivek1337 #change to your Repo owner
         REPO_NAME: ivanyaml #change to your repo name
