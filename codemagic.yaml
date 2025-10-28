@@ -31,14 +31,110 @@ definitions:
       channel: "#builds"
 workflows: 
   label-triggered-checks:
-      name: Label Triggered Checks
-      triggering:
-        events:
-          - pull_request_labeled
-        cancel_previous_builds: true
-      when:
-        condition: event.pull_request.labels[0].name == "Good to Merge"
-      # Define your steps here for Android Linter, RN Linter, Android Tests, Jest Tests
+    name: Label Triggered Checks
+    triggering:
+      events:
+        - pull_request_labeled
+      cancel_previous_builds: true
+    when:
+      condition: event.pull_request.labels[0].name == "Good to Merge"
+    integrations:
+    app_store_connect: ivan-codemagic-demo
+  
+    environment:
+      xcode: 16.4
+      groups:
+        - keystore_credentials
+        - google_play
+        - codepush
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: io.codemagic.ivanyaml
+      vars:
+        APP_ID: 6738692730 # <-- Use the TestFlight Apple id number (An automatically generated ID assigned to your app) found under General > App Information > Apple ID.
+      flutter: stable
+    scripts:
+      - name: Melos&bootstrap
+        script: |
+          echo "FLUTTER_ROOT is set to: $FLUTTER_ROOT"
+          echo "CM_BUILD_DIR is set to: $CM_BUILD_DIR"
+          
+          if [ -d "$CM_BUILD_DIR/.fvm/" ]; then
+            echo "$CM_BUILD_DIR/.fvm/ exists."
+          else
+            echo "$CM_BUILD_DIR/.fvm/ does not exist, creating it now."
+            mkdir -p $CM_BUILD_DIR/.fvm/
+          fi
+          
+          ln -s $FLUTTER_ROOT $CM_BUILD_DIR/.fvm/flutter_sdk
+          echo "Symbolic link created."
+          echo "Verifying symbolic link..."
+          ls -l $CM_BUILD_DIR/.fvm/flutter_sdk
+          $CM_BUILD_DIR/.fvm/flutter_sdk/bin/flutter --version
+          
+          # Run commands that might fail, but continue if they do
+          dart pub global activate flutterfire_cli || echo "FlutterFire CLI activation failed, continuing..."
+          dart pub global activate melos || echo "Melos activation failed, continuing..."
+          melos bootstrap || echo "Melos bootstrap failed, continuing..."
+  
+      - name: Machine Specs
+        script: |
+          echo "Machine: $(sysctl -n machdep.cpu.brand_string)"
+          echo "CPU cores: $(sysctl -n hw.physicalcpu) physical / $(sysctl -n hw.logicalcpu) logical"
+          echo "RAM: $(($(sysctl -n hw.memsize) / 1024 / 1024 / 1024)) GB"
+
+      - name: Set up code signing settings on Xcode project
+        script: | 
+          xcode-project use-profiles
+      - name: Get Flutter packages
+        script: | 
+          flutter pub get
+      - name: Install pods
+        script: | 
+          find . -name "Podfile" -execdir pod install \;
+      - name: Flutter analyze
+        script: | 
+          flutter analyze
+      - name: Flutter unit tests
+        script: | 
+          flutter test
+        ignore_failure: true
+      - name: Flutter build ipa
+        script: | 
+          BUILD_NUMBER=$(($(app-store-connect get-latest-app-store-build-number "$APP_ID") + 1))
+          flutter build ipa --release \
+            --build-name=1.0.$BUILD_NUMBER \
+            --build-number=$BUILD_NUMBER \
+            --export-options-plist=/Users/builder/export_options.plist
+      - name: Check .ipa Path
+        script: |
+          ls -R build/ios/
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+    publishing:
+      email:
+        recipients:
+          - ivan@codemagic.io
+          - user_2@example.com
+        notify:
+          success: true
+          failure: true
+      app_store_connect:
+        auth: integration
+
+        # Configuration related to TestFlight (optional)
+        # Note: This action is performed during post-processing.
+        submit_to_testflight: false
+        beta_groups: # Specify the names of beta tester groups that will get access to the build once it has passed beta review.
+          - group name 1
+          - group name 2
+
+        # Configuration related to App Store (optional)
+        # Note: This action is performed during post-processing.
+        submit_to_app_store: false
 
 
   ios-yaml-workflow:
