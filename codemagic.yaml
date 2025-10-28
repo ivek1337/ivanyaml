@@ -31,7 +31,8 @@ definitions:
       channel: "#builds" 
 workflows: 
   check_labels_and_build:
-    groups:
+    environment:
+      groups:
         - GitHub Token
     triggering:
       events:
