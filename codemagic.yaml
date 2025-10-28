@@ -31,15 +31,17 @@ definitions:
       channel: "#builds"
 workflows: 
   label-triggered-checks:
-      name: Label Triggered Checks
-      triggering:
-        events:
-          - pull_request_labeled
-        cancel_previous_builds: true
-      when:
-        condition: event.pull_request.labels[0].name == "Good to Merge"
-      # Define your steps here for Android Linter, RN Linter, Android Tests, Jest Tests
-      environment:
+    name: Label Triggered Checks
+    triggering:
+      events:
+        - pull_request_labeled
+      cancel_previous_builds: true
+    when:
+      condition: event.pull_request.labels[0].name == "Good to Merge"
+    integrations:
+      app_store_connect: ivan-codemagic-demo
+  
+    environment:
       xcode: 16.4
       groups:
         - keystore_credentials
@@ -107,6 +109,7 @@ workflows:
       - name: Check .ipa Path
         script: |
           ls -R build/ios/
+
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
@@ -392,11 +395,11 @@ workflows:
     artifacts:
 
       - build/ios/iphonesimulator/Runner.app
-      #- name: install dependencies
+      #- name: install dependencies 
       #  script: flutter pub get
       #- name: Build unsigned .app
       #  script: |  
-      #    xcodebuild -workspace "ios/Runner.xcworkspace" \
+      #    xcodebuild -workspace "ios/Runner.xcworkspace" \ 
       #      -scheme "Runner" \
       #      -sdk iphonesimulator \
       #      -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max,OS=18.2' \
