@@ -41,7 +41,36 @@ workflows:
         REPO_OWNER: ivek1337 #change to your Repo owner
         REPO_NAME: ivanyaml #change to your repo name
         PR_NUMBER: $CM_PULL_REQUEST_NUMBER #automatically fetched by Codemagic webhook on PR
+    pre_clone_scripts:
+      - name: Check PR labels via GitHub API
+        script: |
+          echo "Fetching labels for PR #$PR_NUMBER in $REPO_OWNER/$REPO_NAME..."
 
+          labels_json=$(curl -s -H "Authorization: token $ghtoken" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/issues/$PR_NUMBER/labels")
+
+          echo "Raw API response:"
+          echo "$labels_json"
+
+          # Test if response is a JSON array
+          if ! echo "$labels_json" | jq -e 'type == "array"' > /dev/null; then
+            echo "API response is not a JSON array. Aborting."
+            exit 1
+          fi
+
+          echo "Labels:"
+          echo "$labels_json" | jq -r '.[].name'
+
+          # Check if label "good to merg" exists
+          echo "$labels_json" | jq -e '.[] | select(.name | ascii_downcase == "good to merg")' > /dev/null
+
+          if [ $? -eq 0 ]; then
+            echo "Label 'good to merg' found. Continuing build."
+          else
+            echo "Label 'good to merg' not found. Stopping build."
+            exit 1
+          fi
     scripts:
       - name: Check PR labels via GitHub API
         script: |
