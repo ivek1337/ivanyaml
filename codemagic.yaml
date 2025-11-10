@@ -235,7 +235,7 @@ workflows:
           source: true
       cancel_previous_builds: false
     environment:
-      xcode: 16.4
+      xcode: 26.1
       groups:
         - keystore_credentials
         - google_play
