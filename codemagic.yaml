@@ -246,6 +246,10 @@ workflows:
       vars:
         APP_ID: 6738692730 # <-- Use the TestFlight Apple id number (An automatically generated ID assigned to your app) found under General > App Information > Apple ID.
       flutter: stable
+      cache:
+        cache_paths:
+          - ~/Library/Developer/Xcode/CompilationCache.noindex
+
     scripts:
       - name: Melos&bootstrap
         script: |
@@ -294,11 +298,12 @@ workflows:
         ignore_failure: true
       - name: Flutter build ipa
         script: | 
-          BUILD_NUMBER=$(($(app-store-connect get-latest-app-store-build-number "$APP_ID") + 1))
+          BUILD_NUMBER=$(($(app-store-connect get-latest-app-store-build-number "$APP_ID") + 2))
           flutter build ipa --release \
             --build-name=1.0.$BUILD_NUMBER \
             --build-number=$BUILD_NUMBER \
-            --export-options-plist=/Users/builder/export_options.plist
+            --export-options-plist=/Users/builder/export_options.plist \
+            --archive-xcargs "COMPILATION_CACHE_ENABLE_CACHING=True"
       - name: Check .ipa Path
         script: |
           ls -R build/ios/
