@@ -303,7 +303,18 @@ workflows:
             --build-name=1.0.2 \
             --build-number=$BUILD_NUMBER \
             --export-options-plist=/Users/builder/export_options.plist \
-            --archive-xcargs "COMPILATION_CACHE_ENABLE_CACHING=True"
+      - name: Prepare Flutter iOS Runner
+        script: |
+          flutter build ios --release --no-codesign
+      
+      - name: Build ipa for distribution
+        script: |
+          xcode-project build-ipa \
+            --workspace "Runner.xcworkspace" \
+            --scheme "Runner" \
+            --archive-xcargs "COMPILATION_CACHE_ENABLE_CACHING=True" \
+            --export-options-plist /Users/builder/export_options.plist
+
       - name: Check .ipa Path
         script: |
           ls -R build/ios/
