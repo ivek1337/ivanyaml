@@ -385,6 +385,31 @@ workflows:
       flutter: stable
 
     scripts:
+      - name: export .p8
+        script: |
+          #!/bin/bash
+          # Decode the base64-encoded private key from environment variable and save as `AuthKey.p8`
+          echo "$APP_STORE_CONNECT_PRIVATE_KEY" | base64 --decode > ./AuthKey.p8
+          
+          # Optional: list file details to verify
+          ls -l ./AuthKey.p8
+          
+          # Mark the private key file as an artifact so it can be downloaded from Codemagic build UI
+          # The artifacts are specified relative to the clone directory
+          echo "Saving AuthKey.p8 for download as artifact"
+          
+          # Create a directory for artifacts if needed
+          mkdir -p build/artifacts
+          
+          # Move the key file to artifacts directory
+          mv ./AuthKey.p8 build/artifacts/
+          
+          # The artifact path 'build/artifacts/AuthKey.p8' must be added to codemagic.yaml artifact list:
+          # artifacts:
+          #  - build/artifacts/AuthKey.p8
+          
+          echo "Private key saved as build/artifacts/AuthKey.p8"
+
       - name: Flutter build ipa
         script: | 
           BUILD_NUMBER=$(($(app-store-connect get-latest-app-store-build-number "$APP_ID") + 3))
