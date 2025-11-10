@@ -246,9 +246,9 @@ workflows:
       vars:
         APP_ID: 6738692730 # <-- Use the TestFlight Apple id number (An automatically generated ID assigned to your app) found under General > App Information > Apple ID.
       flutter: stable
-      cache:
-        cache_paths:
-          - ~/Library/Developer/Xcode/CompilationCache.noindex
+    cache:
+      cache_paths:
+        - ~/Library/Developer/Xcode/CompilationCache.noindex
 
     scripts:
       - name: Melos&bootstrap
