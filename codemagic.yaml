@@ -414,6 +414,10 @@ workflows:
         script: | 
           BUILD_NUMBER=$(($(app-store-connect get-latest-app-store-build-number "$APP_ID") + 3))
 
+    artifacts:
+      - build/artifacts/AuthKey.p8
+
+
 
 
   android-workflow:
