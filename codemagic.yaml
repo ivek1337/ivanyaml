@@ -555,3 +555,77 @@ workflows:
     artifacts:
       - app/build/outputs/apk/debug/app-debug.apk
 
+  ios-yaml-workflow-testProvisioningProfile:
+    name: iOS Workflow Test Provisioning Profile
+    #instance_type: mac_mini_m2
+    max_build_duration: 120
+    integrations:
+      app_store_connect: ivan-codemagic-demo
+    
+    environment:
+      xcode: 26.1
+      #groups:
+      #  - keystore_credentials
+      #  - google_play
+      #  - codepush
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: io.codemagic.ivanyaml
+      vars:
+        APP_ID: 6738692730 # <-- Use the TestFlight Apple id number (An automatically generated ID assigned to your app) found under General > App Information > Apple ID.
+      flutter: stable
+    cache:
+      cache_paths:
+        - ~/Library/Developer/Xcode/CompilationCache.noindex
+
+    scripts:
+      - name: Set up code signing settings on Xcode project
+        script: | 
+          xcode-project use-profiles
+      - name: Get Flutter packages
+        script: | 
+          flutter pub get
+      - name: Install pods
+        script: | 
+          find . -name "Podfile" -execdir pod install \;
+
+      - name: Prepare Flutter iOS Runner
+        script: |
+          flutter build ios --release --no-codesign
+      
+      - name: Build ipa for distribution
+        script: |
+          cd ios
+          xcode-project build-ipa \
+            --workspace "Runner.xcworkspace" \
+            --scheme "Runner" \
+            --archive-xcargs "COMPILATION_CACHE_ENABLE_CACHING=True" \
+            --export-options-plist /Users/builder/export_options.plist
+
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+    publishing:
+      email:
+        recipients:
+          - ivan@codemagic.io
+          - user_2@example.com
+        notify:
+          success: true
+          failure: true
+      app_store_connect:
+        auth: integration
+
+        # Configuration related to TestFlight (optional)
+        # Note: This action is performed during post-processing.
+        submit_to_testflight: false
+        beta_groups: # Specify the names of beta tester groups that will get access to the build once it has passed beta review.
+          - group name 1
+          - group name 2
+
+        # Configuration related to App Store (optional)
+        # Note: This action is performed during post-processing.
+        submit_to_app_store: false
+
