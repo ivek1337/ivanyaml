@@ -581,10 +581,10 @@ workflows:
     scripts:
       - name: Report Codemagic running status to Gitlab
       - script: |
-        GITLAB_PROJECT_ID="0"
-        set -x
-        chmod u+x scripts/report-status.sh
-        ./scripts/report-status.sh $CM_BUILD_ID ${GITLAB_ACCESS_TOKEN} $CM_COMMIT ${API_TOKEN} $GITLAB_PROJECT_ID $CM_PROJECT_ID "true" $CONTEXT
+          GITLAB_PROJECT_ID="0"
+          set -x
+          chmod u+x scripts/report-status.sh
+          ./scripts/report-status.sh $CM_BUILD_ID ${GITLAB_ACCESS_TOKEN} $CM_COMMIT ${API_TOKEN} $GITLAB_PROJECT_ID $CM_PROJECT_ID "true" $CONTEXT
       - name: Set up code signing settings on Xcode project
         script: | 
           xcode-project use-profiles
