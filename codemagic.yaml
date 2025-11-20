@@ -630,8 +630,8 @@ workflows:
           script: |
             STATUS=$(curl -s -H "Content-Type: application/json" \
                -H "x-auth-token: $CM_API_TOKEN" \
-               --request GET "https://api.codemagic.io/builds/$CM_BUILD_ID" \
-               | jq -r '.build.buildActions[]? | select(.type=="publishing") | .status')
+               --request GET "https://api.codemagic.io/builds/$CM_BUILD_ID" ) #\
+               #| jq -r '.build.buildActions[]? | select(.type=="publishing") | .status')
             echo $STATUS
 
       email:
