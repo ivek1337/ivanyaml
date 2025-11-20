@@ -580,7 +580,7 @@ workflows:
 
     scripts:
       - name: Report Codemagic running status to Gitlab
-      - script: |
+        script: |
           GITLAB_PROJECT_ID="0"
           set -x
           chmod u+x scripts/report-status.sh
