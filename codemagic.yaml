@@ -618,6 +618,7 @@ workflows:
             --scheme "Runner" \
             --archive-xcargs "COMPILATION_CACHE_ENABLE_CACHING=True" \
             --export-options-plist /Users/builder/export_options.plist
+        ignore_failure: true
 
 
     artifacts:
