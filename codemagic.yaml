@@ -555,8 +555,8 @@ workflows:
     artifacts:
       - app/build/outputs/apk/debug/app-debug.apk
 
-  ios-yaml-workflow-testProvisioningProfile:
-    name: iOS Workflow Test Provisioning Profile
+  ios-yaml-npmrc-test:
+    name: iOS Workflow .npmrc test
     #instance_type: mac_mini_m2
     max_build_duration: 120
     integrations:
@@ -580,13 +580,13 @@ workflows:
         - ~/Library/Developer/Xcode/CompilationCache.noindex
 
     scripts:
-      - name: Report Codemagic running status to Gitlab
+      - name: Create .npmrc file
         script: |
-          STATUS=$(curl -s -H "Content-Type: application/json" \
-             -H "x-auth-token: $CM_API_TOKEN" \
-             --request GET "https://api.codemagic.io/builds/$CM_BUILD_ID" \
-             | jq -r '.build.status')
-          echo $STATUS
+          echo "@YOUR_GITHUB_USERNAME:registry=https://npm.pkg.github.com" > .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${ghtoken}" >> .npmrc
+      - name: Run .npmrc install
+        script: |
+          npm install
       - name: Set up code signing settings on Xcode project
         script: | 
           xcode-project use-profiles
@@ -614,7 +614,7 @@ workflows:
         script: |
           cd ios
           xcode-project build-ipa \
-            --workspace "Runner.xcworkspac" \
+            --workspace "Runner.xcworkspace" \
             --scheme "Runner" \
             --archive-xcargs "COMPILATION_CACHE_ENABLE_CACHING=True" \
             --export-options-plist /Users/builder/export_options.plist
