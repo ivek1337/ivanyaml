@@ -690,13 +690,14 @@ workflows:
             # we will check build status in next workflow
             BUILD_ID_TO_CHECK=$CM_BUILD_ID #save this builds ID in env.variable that will be sent to new workflow
 
-            # Trigger second workflow with curl (pass buildID as env var)
+            # Trigger second workflow with curl (pass buildID as env var, CM_BRANCH is built in env var)
             curl -X POST "https://api.codemagic.io/builds" \
               -H "x-auth-token: $CM_API_TOKEN" \
               -H "Content-Type: application/json" \
               -d "{
                 \"appId\": \"$APP_ID\",
                 \"workflowId\": \"$SECOND_WORKFLOW_ID\",
+                \"branch\": \"CM_BRANCH\",
                 \"environmentVariables\": {
                   \"BUILD_STATUS\": \"$BUILD_STATUS\",
                   \"BUILD_ID_TO_CHECK\": \"$BUILD_ID_TO_CHECK\"
