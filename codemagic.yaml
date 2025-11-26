@@ -705,7 +705,6 @@ workflows:
 
   second_workflow:
     name: Second workflow (status update)
-    clone_repo: false   # Disable clone to skip copying repo
     max_build_duration: 10
     integrations:
       app_store_connect: ivan-codemagic-demo
