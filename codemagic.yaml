@@ -697,7 +697,7 @@ workflows:
               -d "{
                 \"appId\": \"$APP_ID\",
                 \"workflowId\": \"$SECOND_WORKFLOW_ID\",
-                \"branch\": \"CM_BRANCH\",
+                \"branch\": \"$CM_BRANCH\",
                 \"environment\": {
                   \"variables\": {
                     \"BUILD_STATUS\": \"$BUILD_STATUS\",
