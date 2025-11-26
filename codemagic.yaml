@@ -656,3 +656,86 @@ workflows:
         # Note: This action is performed during post-processing.
         submit_to_app_store: false
 
+  first_workflow:
+    name: First workflow (build and trigger)
+    max_build_duration: 60
+    integrations:
+      app_store_connect: ivan-codemagic-demo
+    
+    environment:
+      xcode: 26.1
+      groups:
+      #  - keystore_credentials
+      #  - google_play
+      #  - codepush
+        - GitHub Token
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: io.codemagic.ivanyaml
+    scripts:
+      - name: Build app
+        script: |
+          echo "Running build..."
+          # Your build commands here
+    publishing:
+      scripts:
+        - name: Trigger second workflow for status update
+          script: |
+            # Set variables
+            CODENAGIC_API_TOKEN=$CM_API_TOKEN   # You should set this in environment vars in Codemagic
+            APP_ID="669612086bf7a6c83d46ad71"
+            SECOND_WORKFLOW_ID="second_workflow"
+
+            # Get current build status (you might define custom logic or use environment variable)
+            # we will check build status in next workflow
+            BUILD_ID_TO_CHECK=$CM_BUILD_ID #save this builds ID in env.variable that will be sent to new workflow
+
+            # Trigger second workflow with curl (pass buildID as env var)
+            curl -X POST "https://api.codemagic.io/builds" \
+              -H "x-auth-token: $CM_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"appId\": \"$APP_ID\",
+                \"workflowId\": \"$SECOND_WORKFLOW_ID\",
+                \"environmentVariables\": {
+                  \"BUILD_STATUS\": \"$BUILD_STATUS\",
+                  \"BUILD_ID_TO_CHECK\": \"$BUILD_ID_TO_CHECK\"
+                }
+              }"
+
+  second_workflow:
+    name: Second workflow (status update)
+    clone_repo: false   # Disable clone to skip copying repo
+    max_build_duration: 10
+    integrations:
+      app_store_connect: ivan-codemagic-demo
+    
+    environment:
+      xcode: 26.1
+      groups:
+      #  - keystore_credentials
+      #  - google_play
+      #  - codepush
+        - GitHub Token
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: io.codemagic.ivanyaml
+    scripts:
+      - name: Send build status to GitLab
+        script: |
+          echo "Build status from first workflow: $BUILD_STATUS"
+          # Use GitLab API to send status here, e.g.:
+          #curl --request POST "https://gitlab.example.com/api/v4/projects/PROJECT_ID/statuses/COMMIT_SHA" \
+          #  --header "PRIVATE-TOKEN: your-gitlab-token" \
+          #  --form "state=$BUILD_STATUS"
+          # CM_API_TOKEN lives in my group GitHub Token
+          # BUILD_ID_TO_CHECK is in env.variable sent here from CM API Post from workflow1
+          STATUS=$(curl -s -H "Content-Type: application/json" \
+               -H "x-auth-token: $CM_API_TOKEN" \
+               --request GET "https://api.codemagic.io/builds/$BUILD_ID_TO_CHECK" \
+               | jq -r '.build.status')
+         echo $STATUS
+
+
+
+
