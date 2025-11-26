@@ -673,15 +673,7 @@ workflows:
         script: |
           echo "Running build..."
           # Your build commands here
-      - name: Fail build intentionally
-        script: |
-          # intentionally failed build to check status report in second_workflow, notice that --workspace has a typo
-          cd ios
-          xcode-project build-ipa \
-            --workspace "Runner.xcworkspace" \
-            --scheme "Runner" \
-            --archive-xcargs "COMPILATION_CACHE_ENABLE_CACHING=True" \
-            --export-options-plist /Users/builder/export_options.plist
+          
     publishing:
       scripts:
         - name: Trigger second workflow for status update
@@ -731,13 +723,13 @@ workflows:
         script: |
           # CM_API_TOKEN lives in my group GitHub Token
           # BUILD_ID_TO_CHECK is in env.variable sent here from CM API Post from first_workflow
-          # exit 0 is used so that this workflow doesn't clone the repo nor goes into building. It's main purpose is to report the status of last Build
+          # exit 1 is used so that this workflow doesn't clone the repo nor goes into building. It's main purpose is to report the status of last Build so I let it fail with Exit 1 because it should have already reported build status at that point
           STATUS=$(curl -s -H "Content-Type: application/json" \
                -H "x-auth-token: $CM_API_TOKEN" \
                --request GET "https://api.codemagic.io/builds/$BUILD_ID_TO_CHECK" \
                | jq -r '.build.status')
           echo $STATUS
-          exit 0
+          exit 1
 
 
 
