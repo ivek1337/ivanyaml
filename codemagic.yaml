@@ -733,8 +733,8 @@ workflows:
                -H "x-auth-token: $CM_API_TOKEN" \
                --request GET "https://api.codemagic.io/builds/$BUILD_ID_TO_CHECK" \
                | jq -r '.build.status')
-         echo $STATUS
-         exit 1
+          echo $STATUS
+          exit 1
 
 
 
