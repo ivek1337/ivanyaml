@@ -677,8 +677,17 @@ workflows:
         script: |
           echo "Running build..."
           # Your build commands here
+      - name: Fail build intentionally
+        script: |
+          cd ios
+          xcode-project build-ipa \
+            --workspace "Runner.xcworkspac" \
+            --scheme "Runner" \
+            --archive-xcargs "COMPILATION_CACHE_ENABLE_CACHING=True" \
+            --export-options-plist /Users/builder/export_options.plist
     publishing:
       scripts:
+        
         - name: Trigger second workflow for status update
           script: |
             # Set variables
@@ -689,7 +698,6 @@ workflows:
             # Get current build status (you might define custom logic or use environment variable)
             # we will check build status in next workflow
             BUILD_ID_TO_CHECK=$CM_BUILD_ID #save this builds ID in env.variable that will be sent to new workflow
-
             # Trigger second workflow with curl (pass buildID as env var, CM_BRANCH is built in env var)
             curl -X POST "https://api.codemagic.io/builds" \
               -H "x-auth-token: $CM_API_TOKEN" \
@@ -700,7 +708,6 @@ workflows:
                 \"branch\": \"$CM_BRANCH\",
                 \"environment\": {
                   \"variables\": {
-                    \"BUILD_STATUS\": \"$BUILD_STATUS\",
                     \"BUILD_ID_TO_CHECK\": \"$BUILD_ID_TO_CHECK\"
                   }
                 }
@@ -728,7 +735,6 @@ workflows:
     pre_clone_scripts:
       - name: Send build status to GitLab
         script: |
-          echo "Build status from first workflow: $BUILD_STATUS"
           # Use GitLab API to send status here, e.g.:
           #curl --request POST "https://gitlab.example.com/api/v4/projects/PROJECT_ID/statuses/COMMIT_SHA" \
           #  --header "PRIVATE-TOKEN: your-gitlab-token" \
