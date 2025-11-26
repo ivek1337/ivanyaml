@@ -722,6 +722,9 @@ workflows:
       #  - google_play
       #  - codepush
         - GitHub Token
+      vars:
+        BUILD_STATUS: $BUILD_STATUS
+        BUILD_ID_TO_CHECK: $BUILD_ID_TO_CHECK # This variable will be set by the API trigger
       ios_signing:
         distribution_type: app_store
         bundle_identifier: io.codemagic.ivanyaml
