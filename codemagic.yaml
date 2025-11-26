@@ -698,9 +698,11 @@ workflows:
                 \"appId\": \"$APP_ID\",
                 \"workflowId\": \"$SECOND_WORKFLOW_ID\",
                 \"branch\": \"CM_BRANCH\",
-                \"environmentVariables\": {
-                  \"BUILD_STATUS\": \"$BUILD_STATUS\",
-                  \"BUILD_ID_TO_CHECK\": \"$BUILD_ID_TO_CHECK\"
+                \"environment\": {
+                  \"variables\": {
+                    \"BUILD_STATUS\": \"$BUILD_STATUS\",
+                    \"BUILD_ID_TO_CHECK\": \"$BUILD_ID_TO_CHECK\"
+                  }
                 }
               }"
 
@@ -711,6 +713,9 @@ workflows:
       app_store_connect: ivan-codemagic-demo
     
     environment:
+      variables:
+        BUILD_STATUS: ""
+        BUILD_ID_TO_CHECK: "" # This variable will be set by the API trigger
       xcode: 26.1
       groups:
       #  - keystore_credentials
