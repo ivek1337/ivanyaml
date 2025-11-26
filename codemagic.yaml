@@ -720,21 +720,23 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: io.codemagic.ivanyaml
-    scripts:
-      - name: Send build status to GitLab
-        script: |
-          echo "Build status from first workflow: $BUILD_STATUS"
-          # Use GitLab API to send status here, e.g.:
-          #curl --request POST "https://gitlab.example.com/api/v4/projects/PROJECT_ID/statuses/COMMIT_SHA" \
-          #  --header "PRIVATE-TOKEN: your-gitlab-token" \
-          #  --form "state=$BUILD_STATUS"
-          # CM_API_TOKEN lives in my group GitHub Token
-          # BUILD_ID_TO_CHECK is in env.variable sent here from CM API Post from workflow1
-          STATUS=$(curl -s -H "Content-Type: application/json" \
-               -H "x-auth-token: $CM_API_TOKEN" \
-               --request GET "https://api.codemagic.io/builds/$BUILD_ID_TO_CHECK" \
-               | jq -r '.build.status')
-         echo $STATUS
+    pre_clone_scripts:
+      scripts:
+        - name: Send build status to GitLab
+          script: |
+            echo "Build status from first workflow: $BUILD_STATUS"
+            # Use GitLab API to send status here, e.g.:
+            #curl --request POST "https://gitlab.example.com/api/v4/projects/PROJECT_ID/statuses/COMMIT_SHA" \
+            #  --header "PRIVATE-TOKEN: your-gitlab-token" \
+            #  --form "state=$BUILD_STATUS"
+            # CM_API_TOKEN lives in my group GitHub Token
+            # BUILD_ID_TO_CHECK is in env.variable sent here from CM API Post from workflow1
+            STATUS=$(curl -s -H "Content-Type: application/json" \
+                 -H "x-auth-token: $CM_API_TOKEN" \
+                 --request GET "https://api.codemagic.io/builds/$BUILD_ID_TO_CHECK" \
+                 | jq -r '.build.status')
+           echo $STATUS
+           exit 1
 
 
 
