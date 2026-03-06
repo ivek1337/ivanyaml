@@ -744,6 +744,10 @@ workflows:
       - name: Send build status to GitLab
         script: |
           echo "GITLABPAT=$GITLABPAT"
+      - name: Clone with GitLab PAT
+        script: |
+          echo "test pre-clone script"
+          git clone "$REPO_URL" . --branch="main" --depth=1
     scripts:
       - name: Continue with build
         script: |
