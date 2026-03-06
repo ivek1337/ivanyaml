@@ -740,7 +740,10 @@ workflows:
         - GitLabToken
       vars:
         GITLABPAT: $GITLABPAT # This variable will be set by the API trigger
-    
+    pre_clone_scripts:
+      - name: Send build status to GitLab
+        script: |
+          echo "GITLABPAT=$GITLABPAT"
     scripts:
       - name: Continue with build
         script: |
