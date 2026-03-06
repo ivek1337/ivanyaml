@@ -735,9 +735,12 @@ workflows:
   gitlab_patched_build:
     name: GitLab PAT Build
     # NO environment.vars - let curl provide directly!
-
-
-
+    environment:
+      groups:
+        - GitLabToken
+      vars:
+        GITLABPAT: $GITLABPAT # This variable will be set by the API trigger
+    
     scripts:
       - name: Continue with build
         script: |
