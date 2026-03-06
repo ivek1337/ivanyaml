@@ -734,6 +734,9 @@ workflows:
           
   gitlab_patched_build:
     name: GitLab PAT Build
+    environment:
+      vars:
+        GITLABPAT: $GITLABPAT # This variable will be set by the API trigger
     pre_clone_scripts:
       - name: Clone with GitLab PAT
         script: |
