@@ -742,8 +742,14 @@ workflows:
     pre_clone_scripts:
       - name: Clone with GitLab PAT
         script: |
-          echo "test pre-clone script"
+          echo "=== DEBUG ==="
+          echo "GITLABPAT='$GITLABPAT'"
+          echo "GITLABPAT length: ${#GITLABPAT}"
+          echo "First 8 chars: ${GITLABPAT:0:8}"
+          
           REPO_URL="https://oauth2:$GITLABPAT@gitlab.com/ivan-group3770550/ivan-project.git"
+          echo "FULL REPO_URL='$REPO_URL'"
+          
           git clone "$REPO_URL" . --branch="main" --depth=1
           
     
