@@ -748,15 +748,17 @@ workflows:
       - name: Clone with GitLab PAT
         script: |
           echo "test pre-clone script"
-          git clone "$REPO_URL" . --branch="master" --depth=1
+          git clone "$REPO_URL" ./gitlab-repo --branch="master" --depth=1
+          cd gitlab-repo
+          echo "Real repo cloned to: $(pwd)"
+  
     scripts:
-      - name: Continue with build
+      - name: Build from REAL GitLab repo
         script: |
-          echo "Running main build steps...testing!"
-          # Your build commands here
-          echo "GITLABPAT=[$GITLABPAT]"
-          echo "Length: ${#GITLABPAT}"
-          REPO_URL="https://oauth2:$GITLABPAT@gitlab.com/ivan-group3770550/ivan-project.git"
-          git clone "$REPO_URL" . --branch="main" --depth=1
+          cd gitlab-repo
+          echo "Building from REAL repo: $(pwd)"
+          ls -la  # List real repo contents
+          # Your iOS/Android build commands HERE
+          echo "✅ Build complete!"
 
 
