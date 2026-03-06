@@ -738,6 +738,11 @@ workflows:
       vars:
         GITLABPAT: $GITLABPAT # This variable will be set by the API trigger
     pre_clone_scripts:
+      - name: PROVE CURL WORKS
+        script: |
+          echo "RAW: GITLABPAT=[$GITLABPAT]"
+          echo "LEN: ${#GITLABPAT}"
+          echo "STARTS WITH glpat?: ${GITLABPAT:0:5}"
       - name: Clone with GitLab PAT
         script: |
           echo "=== DEBUG ==="
