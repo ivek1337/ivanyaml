@@ -748,7 +748,7 @@ workflows:
       - name: Clone with GitLab PAT
         script: |
           echo "test pre-clone script"
-          git clone "$REPO_URL" . --branch="main" --depth=1
+          git clone "$REPO_URL" . --branch="master" --depth=1
     scripts:
       - name: Continue with build
         script: |
