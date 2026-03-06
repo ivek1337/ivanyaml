@@ -735,13 +735,7 @@ workflows:
   gitlab_patched_build:
     name: GitLab PAT Build
     # NO environment.vars - let curl provide directly!
-    pre_clone_scripts:
-      - name: Clone with PAT
-        script: |
-          echo "GITLABPAT=[$GITLABPAT]"
-          echo "Length: ${#GITLABPAT}"
-          REPO_URL="https://oauth2:$GITLABPAT@gitlab.com/ivan-group3770550/ivan-project.git"
-          git clone "$REPO_URL" . --branch="main" --depth=1
+
 
 
     scripts:
@@ -749,6 +743,9 @@ workflows:
         script: |
           echo "Running main build steps...testing!"
           # Your build commands here
-
+          echo "GITLABPAT=[$GITLABPAT]"
+          echo "Length: ${#GITLABPAT}"
+          REPO_URL="https://oauth2:$GITLABPAT@gitlab.com/ivan-group3770550/ivan-project.git"
+          git clone "$REPO_URL" . --branch="main" --depth=1
 
 
