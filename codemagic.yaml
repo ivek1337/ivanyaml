@@ -736,27 +736,14 @@ workflows:
     name: GitLab PAT Build
     environment:
       vars:
-        GITLAB_PAT: $GITLABPAT # This variable will be set by the API trigger
+        GITLABPAT: $GITLABPAT  # Declare SAME name curl sends
     pre_clone_scripts:
-      - name: PROVE CURL WORKS
+      - name: Clone with PAT
         script: |
-          echo "RAW: GITLABPAT= $GITLABPAT or $GITLAB_PAT"
-          echo "RAW: GITLABPAT=[$GITLAB_PAT]"
-          echo "LEN: ${#GITLAB_PAT}"
-          echo "STARTS WITH glpat?: ${GITLAB_PAT:0:5}"
-      - name: Clone with GitLab PAT
-        script: |
-          echo "=== DEBUG ==="
-          echo "GITLABPAT='$GITLABPAT'"
-          echo "GITLABPAT length: ${#GITLABPAT}"
-          echo "First 8 chars: ${GITLABPAT:0:8}"
-          
+          echo "GITLABPAT=[$GITLABPAT]"  # Use $GITLABPAT directly
           REPO_URL="https://oauth2:$GITLABPAT@gitlab.com/ivan-group3770550/ivan-project.git"
-          echo "FULL REPO_URL='$REPO_URL'"
-          
           git clone "$REPO_URL" . --branch="main" --depth=1
-          
-    
+
     scripts:
       - name: Continue with build
         script: |
