@@ -734,11 +734,6 @@ workflows:
           
   gitlab_patched_build:
     name: GitLab PAT Build
-    environment:
-      vars:
-        GITLABPAT: $GITLABPAT        # Set in GitLab CI/CD Variables
-        
-    
     pre_clone_scripts:
       - name: Clone with GitLab PAT
         script: |
