@@ -736,8 +736,8 @@ workflows:
     name: GitLab PAT Build
     environment:
       vars:
-        GITLAB_PAT: $GITLAB_PAT        # Set in GitLab CI/CD Variables
-        REPO_URL: "https://oauth2:$GITLAB_PAT@gitlab.com/ivan-group3770550/ivan-project.git"
+        GITLAB_PAT: $GITLABPAT        # Set in GitLab CI/CD Variables
+        REPO_URL: "https://oauth2:$GITLABPAT@gitlab.com/ivan-group3770550/ivan-project.git"
     
     pre_clone_scripts:
       - name: Clone with GitLab PAT
