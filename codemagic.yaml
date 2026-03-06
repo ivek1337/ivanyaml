@@ -740,10 +740,10 @@ workflows:
     pre_clone_scripts:
       - name: PROVE CURL WORKS
         script: |
+          echo "RAW: GITLABPAT= $GITLABPAT or $GITLAB_PAT"
           echo "RAW: GITLABPAT=[$GITLAB_PAT]"
           echo "LEN: ${#GITLAB_PAT}"
           echo "STARTS WITH glpat?: ${GITLAB_PAT:0:5}"
-          echo "RAW: GITLABPAT=$GITLABPAT or $GITLAB_PAT"
       - name: Clone with GitLab PAT
         script: |
           echo "=== DEBUG ==="
