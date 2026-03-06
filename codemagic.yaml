@@ -740,6 +740,7 @@ workflows:
         - GitLabToken
       vars:
         GITLABPAT: $GITLABPAT # This variable will be set by the API trigger
+        REPO_URL: "https://oauth2:$GITLABPAT@gitlab.com/ivan-group3770550/ivan-project.git"
     pre_clone_scripts:
       - name: Send build status to GitLab
         script: |
