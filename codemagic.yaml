@@ -30,6 +30,7 @@ definitions:
     slack:
       channel: "#builds" 
 workflows: 
+
   check_availabe_simulators:
     name: check available simulators
     #instance_type: mac_mini_m2
@@ -44,11 +45,18 @@ workflows:
     scripts:
       - name: Check available simulators (silent, never fails)
         script: |
-          xcrun simctl list >/dev/null 2>&1 || true
+          #!/bin/bash
+          if ! xcrun simctl list runtimes | grep -q '^ *iOS-18'; then
+            echo "iOS 18.x missing; manual install required (GUI or DMG)"
+            # Or pre-install in macOS image if Codemagic allows custom images
+            exit 1  # Fail build or skip tests
+          fi
+          # Proceed with tests on iPhone 16 Pro iOS 18.x
+          # xcrun simctl list >/dev/null 2>&1 || true
           
       - name: Verify iOS 18.x (visible output)  
         script: |
-          xcrun simctl list runtimes | grep iOS-18 || xcodebuild -downloadPlatform iOS
+          # xcrun simctl list runtimes | grep iOS-18 || xcodebuild -downloadPlatform iOS
           
       - name: Machine Specs
         script: |
