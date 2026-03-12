@@ -45,8 +45,39 @@ workflows:
     scripts:
       - name: Install Xcode 16.3 + iOS 18.x simulators
         script: |
-          xcodes versions:available | head -20  # See what's offered
-          xcodes install --help                 # Check supported flags
+          #!/bin/bash
+          set -e
+          
+          # 1. List available Xcodes
+          echo "=== Available Xcodes ==="
+          xcodes list | head -20
+          
+          # 2. Install Xcode 16.x (gets iOS 18.x catalog)
+          echo "📥 Installing Xcode 16.x..."
+          if xcodes list | grep -q "16\."; then
+            xcodes install 16.3 --select
+          else
+            xcodes install --latest-prerelease | grep 16 || xcodes install 16
+            xcodes select latest-16
+          fi
+          
+          # 3. Download iOS 18.x (works in Xcode 16.x)
+          echo "📥 Downloading iOS 18.x simulator..."
+          xcodebuild -downloadPlatform iOS
+          
+          # 4. Switch BACK to Xcode 26.3 for builds
+          xcodes install 26.3 --select
+          
+          # 5. Verify iOS 18.x
+          echo "=== iOS 18.x Check ==="
+          xcrun simctl list runtimes | grep iOS-18 || echo "❌ Still missing"
+          
+          # 6. Create iPhone 16 Pro iOS 18.x
+          if xcrun simctl list runtimes | grep -q iOS-18; then
+            RUNTIME=$(xcrun simctl list runtimes | grep iOS-18 | head -1 | awk '{print $NF}')
+            xcrun simctl create "iPhone16Pro-iOS18" "iPhone 16 Pro" "$RUNTIME"
+            echo "✅ iPhone 16 Pro iOS 18.x ready!"
+          fi
           
       - name: List devices for testing
         script: |
