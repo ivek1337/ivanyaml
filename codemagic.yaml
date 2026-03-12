@@ -43,47 +43,34 @@ workflows:
         - ~/Library/Developer/Xcode/CompilationCache.noindex
   
     scripts:
+
+      
+      - name: Install Xcode 16.3 + iOS 18.x simulators
+        script: |
+          #!/bin/bash
+          # Use pre-installed xcodes to get Xcode 16.3
+          xcodes install 16.3.0 --license-accept || true
+          sudo xcodes select 16.3.0
+          
+          # Now download iOS 18.x (available in Xcode 16.3)
+          xcodebuild -downloadPlatform iOS
+          
+          # Switch back to Xcode 26.3 for builds
+          sudo xcodes select 26.3.0
+          
+          # Verify
+          xcrun simctl list runtimes | grep iOS-18 || echo "iOS 18.x still missing"
+          
+      - name: List devices for testing
+        script: |
+          xcrun simctl list devices | grep -E "(iPhone 16 Pro|iPhone 15 Pro)" -A 5
+          
       - name: List ALL available runtimes
         script: |
           echo "=== ALL Runtimes ==="
           xcrun simctl list runtimes available | cat
           echo "=== Installed Runtimes ==="
           xcrun simctl list runtimes | grep -E "(iOS-18|iOS-26)" || echo "No iOS runtimes found"
-      
-      - name: Check iOS 18.x specifically  
-        script: |
-          #!/bin/bash
-
-          # Download specific iOS 18.x runtime (Xcode 16.1+)
-          xcodebuild -downloadPlatform iOS \
-            -minimumVersion 18.0 \
-            -maximumVersion 18.4 \
-            -exportPath ~/iOS18.dmg \
-            || echo "Download failed - iOS 18.x unavailable in Xcode 26.3 catalog"
-          
-          # Install if downloaded
-          if [[ -f ~/iOS18.dmg ]]; then
-            xcrun simctl runtime add ~/iOS18.dmg
-            rm ~/iOS18.dmg
-          fi
-          
-          # Verify installation
-          if xcrun simctl list runtimes | grep -q '^ *iOS-18'; then
-            echo "✅ iOS 18.x installed"
-          else
-            echo "❌ iOS 18.x NOT installed"
-          fi
-          if xcrun simctl list runtimes | grep -q '^ *iOS-18'; then
-            echo "✅ iOS 18.x FOUND - creating iPhone 16 Pro"
-            xcrun simctl create "iPhone 16 Pro iOS18" "iPhone 16 Pro" "iOS18.1"  # adjust version
-          else
-            echo "❌ iOS 18.x MISSING - falling back to iOS 26.x or skipping"
-            # Don't fail build - let tests use available runtime or physical devices
-          fi
-      
-      - name: List devices for testing
-        script: |
-          xcrun simctl list devices | grep -E "(iPhone 16 Pro|iPhone 15 Pro)" -A 5
       
       - name: Machine Specs
         script: |
