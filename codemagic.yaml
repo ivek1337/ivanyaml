@@ -45,46 +45,14 @@ workflows:
     scripts:
       - name: Install Xcode 16.3 + iOS 18.x simulators
         script: |
-          #!/bin/bash
           set -e
-          
-          # Create temp directory
-          mkdir -p ~/SimulatorRuntimes
-          cd ~/SimulatorRuntimes
-          
-          # Download iOS 18.1 Simulator Runtime DMG (8GB)
-          echo "📥 Downloading iOS 18.1 Simulator Runtime..."
-          curl -L -o iOS_18.1_Simulator_Runtime.dmg \
-            "https://download.developer.apple.com/Developer_Tools/iOS_18.1_Simulator_Runtime/iOS_18.1_Simulator_Runtime.dmg"
-          
-          # Install the runtime
-          echo "🔧 Installing iOS 18.1 runtime..."
-          xcrun simctl runtime add iOS_18.1_Simulator_Runtime.dmg
-          
-          # Verify installation
-          echo "✅ Checking iOS 18.1 installation..."
-          xcrun simctl list runtimes | grep iOS-18 || echo "❌ iOS 18.x not found"
-          
-          # Create iPhone 16 Pro iOS 18.1
-          RUNTIME=$(xcrun simctl list runtimes | grep iOS-18 | head -1 | awk '{print $NF}')
-          xcrun simctl create "iPhone16Pro-iOS18" "iPhone 16 Pro" "$RUNTIME"
-          
-          echo "✅ iPhone 16 Pro iOS 18.1 ready!"
-          xcrun simctl list devices | grep iPhone16Pro-iOS18
-          
-          # Clean up
-          rm -f iOS_18.1_Simulator_Runtime.dmg
-          
-          # 5. Verify iOS 18.x
-          echo "=== iOS 18.x Check ==="
-          xcrun simctl list runtimes | grep iOS-18 || echo "❌ Still missing"
-          
-          # 6. Create iPhone 16 Pro iOS 18.x
-          if xcrun simctl list runtimes | grep -q iOS-18; then
-            RUNTIME=$(xcrun simctl list runtimes | grep iOS-18 | head -1 | awk '{print $NF}')
-            xcrun simctl create "iPhone16Pro-iOS18" "iPhone 16 Pro" "$RUNTIME"
-            echo "✅ iPhone 16 Pro iOS 18.x ready!"
-          fi
+          xcrun simctl list >/dev/null 2>&1 || true
+          xcodebuild -downloadPlatform iOS -buildVersion 18.6
+          export UUID=$(xcrun simctl create "iPhone 16 Pro (iOS 18)" \
+            "com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro" \
+            "com.apple.CoreSimulator.SimRuntime.iOS-18-6")
+          xcrun simctl boot $UUID
+          xcrun simctl list | grep "16 Pro (iOS 18)"
           
       - name: List devices for testing
         script: |
