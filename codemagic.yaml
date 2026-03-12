@@ -43,23 +43,39 @@ workflows:
         - ~/Library/Developer/Xcode/CompilationCache.noindex
   
     scripts:
-
-      
-      - name: Install Xcode 16.3 + iOS 18.x simulators
+      - name: Install Xcode16 and sim 18
         script: |
           #!/bin/bash
-          # Use pre-installed xcodes to get Xcode 16.3
-          xcodes install 16.3.0 --license-accept || true
-          sudo xcodes select 16.3.0
+          set -e
           
-          # Now download iOS 18.x (available in Xcode 16.3)
+          # Install Xcode 16.3 (has iOS 18.x support)
+          echo "📥 Installing Xcode 16.3 via xcodes..."
+          xcodes install "16.3" --license-accept
+          
+          # Switch to Xcode 16.3 temporarily
+          sudo xcodes select "16.3"
+          
+          # Download iOS 18.x simulator (available in Xcode 16.3)
+          echo "📥 Downloading iOS 18.x simulator..."
           xcodebuild -downloadPlatform iOS
           
           # Switch back to Xcode 26.3 for builds
-          sudo xcodes select 26.3.0
+          sudo xcodes select "26.3"
           
-          # Verify
-          xcrun simctl list runtimes | grep iOS-18 || echo "iOS 18.x still missing"
+          # Verify iOS 18.x installed
+          if xcrun simctl list runtimes | grep -q '^ *iOS-18'; then
+            echo "✅ iOS 18.x simulator ready!"
+            RUNTIME=$(xcrun simctl list runtimes | grep '^ *iOS-18' | head -1 | awk '{print $NF}')
+            xcrun simctl create "iPhone 16 Pro iOS18" "iPhone 16 Pro" "$RUNTIME"
+          else
+            echo "❌ iOS 18.x still missing"
+            exit 1
+          fi
+      
+      - name: Install Xcode 16.3 + iOS 18.x simulators
+        script: |
+          xcodes versions:available | head -20  # See what's offered
+          xcodes install --help                 # Check supported flags
           
       - name: List devices for testing
         script: |
