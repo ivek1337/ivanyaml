@@ -30,6 +30,33 @@ definitions:
     slack:
       channel: "#builds" 
 workflows: 
+  check_availabe_simulators:
+    name: check available simulators
+    #instance_type: mac_mini_m2
+    max_build_duration: 120
+    environment:
+      xcode: 26.3
+      flutter: stable
+    cache:
+      cache_paths:
+        - ~/Library/Developer/Xcode/CompilationCache.noindex
+
+    scripts:
+      - name: Check available simulators (silent, never fails)
+        script: |
+          xcrun simctl list >/dev/null 2>&1 || true
+          
+      - name: Verify iOS 18.x (visible output)  
+        script: |
+          xcrun simctl list runtimes | grep iOS-18 || xcodebuild -downloadPlatform iOS
+          
+      - name: Machine Specs
+        script: |
+          echo "Machine: $(sysctl -n machdep.cpu.brand_string)"
+          echo "CPU cores: $(sysctl -n hw.physicalcpu) physical / $(sysctl -n hw.logicalcpu) logical"
+          echo "RAM: $(($(sysctl -n hw.memsize) / 1024 / 1024 / 1024)) GB"
+
+          
   check_labels_and_build:
     triggering:
       events:
