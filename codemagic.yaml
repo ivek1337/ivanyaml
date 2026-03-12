@@ -52,6 +52,27 @@ workflows:
       
       - name: Check iOS 18.x specifically  
         script: |
+          #!/bin/bash
+
+          # Download specific iOS 18.x runtime (Xcode 16.1+)
+          xcodebuild -downloadPlatform iOS \
+            -minimumVersion 18.0 \
+            -maximumVersion 18.4 \
+            -exportPath ~/iOS18.dmg \
+            || echo "Download failed - iOS 18.x unavailable in Xcode 26.3 catalog"
+          
+          # Install if downloaded
+          if [[ -f ~/iOS18.dmg ]]; then
+            xcrun simctl runtime add ~/iOS18.dmg
+            rm ~/iOS18.dmg
+          fi
+          
+          # Verify installation
+          if xcrun simctl list runtimes | grep -q '^ *iOS-18'; then
+            echo "✅ iOS 18.x installed"
+          else
+            echo "❌ iOS 18.x NOT installed"
+          fi
           if xcrun simctl list runtimes | grep -q '^ *iOS-18'; then
             echo "✅ iOS 18.x FOUND - creating iPhone 16 Pro"
             xcrun simctl create "iPhone 16 Pro iOS18" "iPhone 16 Pro" "iOS18.1"  # adjust version
