@@ -31,7 +31,7 @@ definitions:
       channel: "#builds" 
 workflows: 
 
-  check_availabe_simulators:
+  check_available_simulators:
     name: check available simulators
     #instance_type: mac_mini_m2
     max_build_duration: 120
@@ -41,23 +41,29 @@ workflows:
     cache:
       cache_paths:
         - ~/Library/Developer/Xcode/CompilationCache.noindex
-
+  
     scripts:
-      - name: Check available simulators (silent, never fails)
+      - name: List ALL available runtimes
         script: |
-          #!/bin/bash
-          if ! xcrun simctl list runtimes | grep -q '^ *iOS-18'; then
-            echo "iOS 18.x missing; manual install required (GUI or DMG)"
-            # Or pre-install in macOS image if Codemagic allows custom images
-            exit 1  # Fail build or skip tests
+          echo "=== ALL Runtimes ==="
+          xcrun simctl list runtimes available | cat
+          echo "=== Installed Runtimes ==="
+          xcrun simctl list runtimes | grep -E "(iOS-18|iOS-26)" || echo "No iOS runtimes found"
+      
+      - name: Check iOS 18.x specifically  
+        script: |
+          if xcrun simctl list runtimes | grep -q '^ *iOS-18'; then
+            echo "✅ iOS 18.x FOUND - creating iPhone 16 Pro"
+            xcrun simctl create "iPhone 16 Pro iOS18" "iPhone 16 Pro" "iOS18.1"  # adjust version
+          else
+            echo "❌ iOS 18.x MISSING - falling back to iOS 26.x or skipping"
+            # Don't fail build - let tests use available runtime or physical devices
           fi
-          # Proceed with tests on iPhone 16 Pro iOS 18.x
-          # xcrun simctl list >/dev/null 2>&1 || true
-          
-      - name: Verify iOS 18.x (visible output)  
+      
+      - name: List devices for testing
         script: |
-          # xcrun simctl list runtimes | grep iOS-18 || xcodebuild -downloadPlatform iOS
-          
+          xcrun simctl list devices | grep -E "(iPhone 16 Pro|iPhone 15 Pro)" -A 5
+      
       - name: Machine Specs
         script: |
           echo "Machine: $(sysctl -n machdep.cpu.brand_string)"
