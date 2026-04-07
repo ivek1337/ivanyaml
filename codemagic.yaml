@@ -29,7 +29,7 @@ definitions:
   slack_publish: &slack_publish
     slack:
       channel: "#builds" 
-workflows: 
+workflows:
 
   check_available_simulators:
     name: check available simulators
