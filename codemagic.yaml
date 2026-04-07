@@ -271,7 +271,6 @@ workflows:
     triggering:
       events:
         - push
-        - pull_request
       branch_patterns:
         - pattern: '*'
           include: true
