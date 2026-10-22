@@ -291,7 +291,24 @@ workflows:
     cache:
       cache_paths:
         - ~/Library/Developer/Xcode/CompilationCache.noindex
+    pre_clone_script:
+      - name: List all variable names
+        script: |
+          printenv | cut -d= -f1 | sort
 
+      - name: Check payload candidates
+        script: |
+          for v in GITHUB_EVENT_PAYLOAD GITLAB_EVENT_PAYLOAD; do
+            val="${!v}"
+            if [ -n "$val" ]; then
+              echo "$v is SET (length ${#val})"
+              echo "$val" | jq 'keys' 2>/dev/null || echo "(not valid JSON)"
+            else
+              echo "$v is NOT set"
+            fi
+          done
+          echo "--- Variables containing EVENT / PAYLOAD / WEBHOOK ---"
+          printenv | cut -d= -f1 | grep -i -E "event|payload|webhook|hook" || echo "None found"
     scripts:
       - name: Melos&bootstrap
         script: |
