@@ -154,10 +154,10 @@ workflows:
     name: Label Triggered Checks
     triggering:
       events:
-        - pull_request_labeled
+        - pull_request
       cancel_previous_builds: true
-    when:
-      condition: event.pull_request.labels[-1].name == "b new"
+    #when:
+    #  condition: event.pull_request.labels[-1].name == "b new"
     integrations:
       app_store_connect: ivan-codemagic-demo
   
@@ -173,11 +173,18 @@ workflows:
       vars:
         APP_ID: 6738692730 # <-- Use the TestFlight Apple id number (An automatically generated ID assigned to your app) found under General > App Information > Apple ID.
       flutter: stable
-    scripts:
-      - name: Print all PR labels
+    pre_clone_scripts:
+      - name: Print all PR labels before clone
         script: |
           echo "All PR labels:"
           echo "$GITHUB_EVENT_PAYLOAD" | jq -r '.pull_request.labels[].name'
+          echo "$GITHUB_EVENT_PAYLOAD" | jq '.'
+    scripts:
+      - name: Print all PR labels after clone
+        script: |
+          echo "All PR labels:"
+          echo "$GITHUB_EVENT_PAYLOAD" | jq -r '.pull_request.labels[].name'
+          echo "$GITHUB_EVENT_PAYLOAD" | jq '.'
 
       - name: Melos&bootstrap
         script: |
