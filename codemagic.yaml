@@ -291,7 +291,7 @@ workflows:
     cache:
       cache_paths:
         - ~/Library/Developer/Xcode/CompilationCache.noindex
-    pre_clone_script:
+    pre_clone_scripts:
       - name: List all variable names
         script: |
           printenv | cut -d= -f1 | sort
