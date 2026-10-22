@@ -299,6 +299,18 @@ workflows:
       cache_paths:
         - ~/Library/Developer/Xcode/CompilationCache.noindex
     pre_clone_scripts:
+      - name: Search for payload on disk
+        script: |
+          #!/usr/bin/env bash
+          echo "Trigger: $CM_TRIGGER_SOURCE"
+          echo "--- Variable names in pre-clone ---"
+          compgen -e | sort | grep -i -E "event|payload|webhook|hook|github|gitlab|GITHUB" || echo "None found"
+          echo "--- Recent JSON files mentioning this commit or PR events ---"
+          for d in "$HOME" "${TMPDIR:-/tmp}" /tmp /var/tmp; do
+            find "$d" -maxdepth 4 -type f -mmin -30 -size -5M 2>/dev/null \
+              | xargs grep -l -E "$CM_COMMIT|\"pull_request\"|object_attributes" 2>/dev/null
+          done | sort -u || true
+          echo "Done"
       - name: List all variable names
         script: |
           printenv | cut -d= -f1 | sort
