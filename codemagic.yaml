@@ -322,9 +322,6 @@ workflows:
               | xargs grep -l -E "$CM_COMMIT|\"pull_request\"|object_attributes" 2>/dev/null
           done | sort -u || true
           echo "Done"
-      - name: List all variable names
-        script: |
-          printenv | cut -d= -f1 | sort
 
       - name: Check payload candidates
         script: |
@@ -342,7 +339,7 @@ workflows:
     scripts:
       - name: Check payload candidates
         script: |
-          for v in GITHUB_EVENT_PAYLOAD GITLAB_EVENT_PAYLOAD; do
+          for v in $GITHUB_EVENT_PAYLOAD $GITLAB_EVENT_PAYLOAD; do
             val="${!v}"
             if [ -n "$val" ]; then
               echo "$v is SET (length ${#val})"
