@@ -299,6 +299,17 @@ workflows:
       cache_paths:
         - ~/Library/Developer/Xcode/CompilationCache.noindex
     pre_clone_scripts:
+      - name: Try event context
+        script: |
+          #!/usr/bin/env bash
+          echo "Trigger: $CM_TRIGGER_SOURCE"
+          echo "Action: ${{ event.action }}"
+          echo "PR title: ${{ event.pull_request.title }}"
+          echo "First label: ${{ event.pull_request.labels[0].name }}"
+          echo "--- Whole pull_request object ---"
+          cat <<'EOF'
+          ${{ event.pull_request }}
+          EOF
       - name: Search for payload on disk
         script: |
           #!/usr/bin/env bash
